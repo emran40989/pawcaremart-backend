@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -28,11 +28,25 @@ async function run() {
 
     app.post('/services', async (req, res) => {
       const data = req.body;
+      const date = new Date();
+      data.createdAt = date;
       console.log(data);
       const result = await petService.insertOne(data);
       res.send(result);
-      
-      
+    });
+
+    app.get('/services', async (req, res) => {
+      const result = await petService.find().toArray();
+      res.send(result);
+    });
+
+    app.get('/services/:id', async (req, res) => {
+      const id = req.params;
+      console.log(id);
+
+      const query = { _id: new ObjectId(id) };
+      const result = await petService.findOne(query);
+      res.send(result);
     });
 
     await client.db("admin").command({ ping: 1 });
