@@ -23,10 +23,10 @@ async function run() {
   try {
     await client.connect();
 
-    const database = client.db('pet_service');
-    const petService = database.collection('services')
+    const database = client.db("pet_service");
+    const petService = database.collection("services");
 
-    app.post('/services', async (req, res) => {
+    app.post("/services", async (req, res) => {
       const data = req.body;
       const date = new Date();
       data.createdAt = date;
@@ -35,12 +35,12 @@ async function run() {
       res.send(result);
     });
 
-    app.get('/services', async (req, res) => {
+    app.get("/services", async (req, res) => {
       const result = await petService.find().toArray();
       res.send(result);
     });
 
-    app.get('/services/:id', async (req, res) => {
+    app.get("/services/:id", async (req, res) => {
       const id = req.params;
       console.log(id);
       const query = { _id: new ObjectId(id) };
@@ -48,19 +48,45 @@ async function run() {
       res.send(result);
     });
 
-
-    app.get('/my-services',async (req, res) => {
+    app.get("/my-services", async (req, res) => {
       const email = req.query.email;
-      const query = { email: email }
-      
+      const query = { email: email };
+
       const result = await petService.find(query).toArray();
       res.send(result);
-    })
+    });
 
-    
+
+    app.put("/update/:id", async (req, res) => {
+  const data = req.body;
+  const id = req.params.id;
+
+  const query = { _id: new ObjectId(id) };
+
+  const updateDoc = {
+    $set: {
+      name: data.name,
+      category: data.category,
+      price: data.price,
+      location: data.location,
+      description: data.description,
+      imageUrl: data.imageUrl,   
+      pickUpDate: data.pickUpDate,
+      email: data.email,
+
+      createdAt: new Date(data.createdAt), 
+      updatedAt: new Date()
+    }
+  };
+
+  const result = await petService.updateOne(query, updateDoc);
+  res.send(result);
+});
+
+
     await client.db("admin").command({ ping: 1 });
     console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
+      "Pinged your deployment. You successfully connected to MongoDB!",
     );
   } finally {
   }
@@ -73,4 +99,4 @@ app.get("/", (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
-}); 
+});
