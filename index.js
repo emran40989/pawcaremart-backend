@@ -49,40 +49,35 @@ async function run() {
     });
 
     app.get("/my-services", async (req, res) => {
-      const email = req.query.email;
-      const query = { email: email };
+      const { email } = req.query;
+      const query = { 
+        email: email
+      };
 
       const result = await petService.find(query).toArray();
       res.send(result);
     });
 
-
     app.put("/update/:id", async (req, res) => {
-  const data = req.body;
-  const id = req.params.id;
+      const data = req.body;
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
 
-  const query = { _id: new ObjectId(id) };
+      const updateService = {
+        $set: data,
+      };
 
-  const updateDoc = {
-    $set: {
-      name: data.name,
-      category: data.category,
-      price: data.price,
-      location: data.location,
-      description: data.description,
-      imageUrl: data.imageUrl,   
-      pickUpDate: data.pickUpDate,
-      email: data.email,
+      const result = await petService.updateOne(query, updateService);
+      res.send(result);
+    });
 
-      createdAt: new Date(data.createdAt), 
-      updatedAt: new Date()
-    }
-  };
 
-  const result = await petService.updateOne(query, updateDoc);
-  res.send(result);
-});
-
+    app.delete('/delete/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await petService.deleteOne(query);
+      res.send(result);
+    })
 
     await client.db("admin").command({ ping: 1 });
     console.log(
