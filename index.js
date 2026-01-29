@@ -25,6 +25,7 @@ async function run() {
 
     const database = client.db("pet_service");
     const petService = database.collection("services");
+    const ordersCollection = database.collection("orders");
 
     app.post("/services", async (req, res) => {
       const data = req.body;
@@ -46,7 +47,7 @@ async function run() {
     });
 
     app.get("/services/:id", async (req, res) => {
-      const id = req.params;
+      const id = req.params.id;
       console.log(id);
       const query = { _id: new ObjectId(id) };
       const result = await petService.findOne(query);
@@ -81,6 +82,19 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await petService.deleteOne(query);
+      res.status(201).send(result);
+    })
+
+
+    app.post('/orders', async (req, res) => {
+      const data = req.body;
+      console.log(data);
+      const result = await ordersCollection.insertOne(data);
+      res.status(201).send(result);
+    });
+
+    app.get('/orders', async (req, res) => {
+      const result = await ordersCollection.find().toArray();
       res.send(result);
     })
 
