@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 const uri =
-  "mongodb+srv://emran40989:2WCaL7vfRzutP1hB@cluster0.oh3nqax.mongodb.net/?appName=Cluster0";
+  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.oh3nqax.mongodb.net/?appName=Cluster0`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -21,7 +21,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const database = client.db("pet_service");
     const petService = database.collection("services");
@@ -96,9 +96,18 @@ async function run() {
     app.get('/orders', async (req, res) => {
       const result = await ordersCollection.find().toArray();
       res.send(result);
-    })
+    });
 
-    await client.db("admin").command({ ping: 1 });
+    app.get('/my-orders', async (req, res) => {
+      const { email } = req.query;
+      const query = {
+        buyerEmail: email
+      };
+      const result = await ordersCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
     );
